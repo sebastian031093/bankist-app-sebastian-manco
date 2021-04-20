@@ -61,6 +61,147 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+//tips: antes de pasar vriables globales, peienza en la funcionalidad de tus funciones. primero crea tu funcion y luego mira que le metes.
+
+
+const displayMovements = function (movements) {
+  containerMovements.innerHTML = '';
+
+  movements.forEach( function (mov, i ) {
+
+    const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+    const html = `
+      <div class="movements__row">
+          <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+
+          <div class="movements__value">${mov}€</div>
+        </div>
+    `;
+    containerMovements.insertAdjacentHTML('afterbegin',html);
+
+  });
+};
+
+// displayMovements(account1.movements);
+
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${balance} €`;
+};
+
+// calcDisplayBalance(account1.movements);
+
+
+const calcDisplaySummary = function (movements) {
+  const incomes = movements.filter(mov => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `${incomes} €`;
+
+  const outcomes = movements.filter( mov => mov < 1)
+    .reduce((acc, current) => acc + current, 0);
+  labelSumOut.textContent = `${Math.abs(outcomes)} €`;
+
+  const interest = movements.filter(mov => mov > 0)
+    .map((deposit) => (deposit * 1.2) / 100)
+    .filter((int, i, arr) => {
+      console.log(arr);
+      return int >= 1;
+    })
+    .reduce((acc, current) => acc + current, 0)
+  labelSumInterest.textContent = `${interest} €`;
+};
+
+// calcDisplaySummary(account1.movements);
+
+//login
+//Event handler
+
+let currentAccount;
+
+btnLogin.addEventListener('click', function (event) {
+  //Prevent form from submitting
+  event.preventDefault();
+  //si el metodo fin no encuentra nada, regresa undefine
+  currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
+
+  console.log(currentAccount);
+  //?. solo si la cuenta que ingresa el usuraio existe valida
+  if(currentAccount?.pin === Number(inputLoginPin.value)){
+    // console.log('LOGIN');
+    //Display UI and welcome massege
+
+    labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
+    containerApp.style.opacity = 100;
+
+    //Clear input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    
+    //Diplay movements
+    displayMovements(currentAccount.movements);
+    //Display balance
+    calcDisplayBalance(currentAccount.movements);
+    //Display summary
+    calcDisplaySummary(currentAccount.movements);
+  }
+})
+
+
+// console.log(containerMovements.innerHTML);
+
+
+//Usar metodos para hacer el login de usuario.
+
+//1) el usurio ingresara sus iniciales en minuscula
+
+// const user = 'Steven Thomas Williams'; //stw
+// const userName = user
+//                 .toLocaleLowerCase()
+//                 .split(' ')
+//                 .map(function (name) {
+//                   return name[0]
+//                 })
+//                 .join('');
+
+const createUsername = function (accs) {
+  accs.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLocaleLowerCase()
+      .split(' ')
+      .map(function (name) {
+        return name[0];
+      })
+      .join('');
+  });
+};
+
+console.log(createUsername(accounts));
+console.log(accounts);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
@@ -95,14 +236,14 @@ console.log([...arr]);
 //splice(start index, elements(remove or replace), (value replace))
 
 console.warn('=======SPLICE')
-// console.log(arr.splice(2)); //Toma la parte del array desde el indice donde se indica 
+// console.log(arr.splice(2)); //Toma la parte del array desde el indice donde se indica
 arr.splice(-1);
 console.log(arr); // y la remueve del original.
 arr.splice(1,2);
 console.log(arr)
 
 
-//REVERSE: invierte el sentido del arry 
+//REVERSE: invierte el sentido del arry
 console.warn('=========REVERSE');
 arr = ['a', 'b', 'c', 'd', 'e'];
 const arr2 = ['j','i', 'h', 'g','f'];
@@ -116,11 +257,11 @@ console.log(letters);
 
 //JOIN: Une los elementos de una array por una caracteriste determinada
 
-console.log(letters.join(' => ')) //Esto regresa un string 
+console.log(letters.join(' => ')) //Esto regresa un string
 */
 
 //////////////////////////////////////////////////////////
-///////////looping arrays: FOR ECHT 
+///////////looping arrays: FOR ECHT
 
 /*
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
@@ -178,32 +319,158 @@ currenciesUnique.forEach(function (value, _, set) {
 
 */
 
+//////////////////////////////////////////////////////////////////
+/////////////////////DATA TRANSFORMATIONS: MAP, FILTER, REDUCE
+
+/*
+//MAP: REGERSA UN NUEVO ARRAY CON LOS VALORES MUTADOS.
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300]
+const eurToUsd = 1.1;
+
+
+//TODO: functional programing
+const movementsUSD = movements.map(function (move) {
+  return move * eurToUsd
+})
+console.log(movementsUSD);
+
+const movementsDescriptions = movements.map((mov, i, arr) => {
+  //ternari operator
+
+  return `Movement ${i + 1}: ${mov > 0 ? 'deposited' : 'withdrew'} ${Math.abs(mov)}`;
 
 
 
+  // if( mov > 0){
+  //   return `Movement ${i + 1}: You deposited ${mov}`
+  // }else{
+  //   return `Movement ${i + 1}: You withdrew ${Math.abs(mov)}`;
+  // };
+});
 
 
+console.log(movementsDescriptions);
+//Arrow function
+
+// const movementsUSDArrow = movements.map( mov => mov * eurToUsd)
+
+// const movementsUSDfor = []
+// for (const mov of movements) {
+//   const usd = mov * eurToUsd;
+//   movementsUSDfor.push(usd);
+// }
+
+// console.log(movementsUSDfor);
+// console.log(movementsUSDArrow);
+*/
 
 
+///////////////////////////////////////////////////////////
+////Filter method.
+/*
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+const deposits = movements.filter( deposit => {
+  return deposit > 0;
+})
+
+console.log(deposits);
+
+const withdrawals = movements.filter((retiro ) =>{
+  return retiro < 0
+});
+
+console.log(withdrawals);
+*/
+
+////////////////////////////////////////////////////////
+//////Reduce
+/*
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+console.log(movements);
 
 
+//accumulator ==> SNOWBALL
+const balance = movements.reduce(function (accumualtor, current, i,arr) {
+  console.log(`Iteration ${i}: ${accumualtor}`)
+  return accumualtor + current;
+}, 0); //Este segundo parametro es el valor inicial del acomulador.
+
+console.log(balance);
+
+//for of
+
+let balance2 = 0;
+for (const mov of movements) {
+  balance2 += mov;
+}
+console.log(balance2);
 
 
+//Maximun value.
+//ojo el lio es saber que valor toma el acc.
+//el acumulador es un valor dinamico que yo elijo como se comporta
+const maximun = movements.reduce((acc, current,i)=> {
+  console.log(`${acc} ${current}`)
+  if( acc > current ){
+    return acc
+  }else{
+    return current
+  }
+}, movements[0]);
+
+console.log(maximun);
+*/
+//////////////////////////////////////////////////////////////////////The magic of Chaining Methods
+
+/*
+//EJ : digamos que queremos tomar todos los movimientos, luego convertirlo en dolares y finalmente sumarlos todos para saber exactamente cuantos se deposito en la cuenta.
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const eurToUsd = 1.1;
 
 
+//PIPELINE
+//PARA ENCONTRAR ERRORES EN ESTA DORMA DE TRATAR LOS DATOS, ES BUENO HACER UN CHECK A LOS ARRAY
+const totalDepositsUSD = movements
+  .filter(mov => mov > 1)
+  // .map((mov, i , arr) => {
+  //   console.log(arr);
+  //   mov * eurToUsd;
+  // })
+  .map(mov => mov * eurToUsd)
+  .reduce((acc, current) => acc + current, 0);
+
+console.log(totalDepositsUSD);
+
+*/
 
 
+///////////////////////////////////////////////////////////////////THE FIND METHOD
+/*
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const firstWithdrawal = movements.find(mov  => mov < 0 )
+console.log(movements);
+console.log(firstWithdrawal);
+
+console.log(accounts);
+
+const accunt = accounts.find(acc => acc.owner === 'Jessica Davis');
+
+console.log(accunt);
+
+//For of
+
+let objExtriado;
+
+for (const [index, obj] of accounts.entries()) {
+  // console.log(obj.owner);
+  if( obj.owner === 'Jessica Davis'){
+    objExtriado = obj;
+  }
+}
+
+console.log(objExtriado);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+//extraer objetos de un array con find
+*/
