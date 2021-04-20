@@ -64,10 +64,15 @@ const inputClosePin = document.querySelector('.form__input--pin');
 //tips: antes de pasar vriables globales, peienza en la funcionalidad de tus funciones. primero crea tu funcion y luego mira que le metes.
 
 
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   containerMovements.innerHTML = '';
 
-  movements.forEach( function (mov, i ) {
+  //Este es un ejemplo perfeco del uso de slice para hacer una copia de un array, pues al implementar sort mutariamos el array original y eso es una mala idea.
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements
+
+
+
+  movs.forEach( function (mov, i ) {
 
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
@@ -162,6 +167,7 @@ btnTransfer.addEventListener('click', function (event) {
   const receiverAcc = accounts.find(acc => acc.username === inputTransferTo.value);
 
   console.log(amount, receiverAcc);
+  inputTransferAmount.value = inputTransferTo.value = '';
 
   if(amount > 0 && /* receiverAcc && */ currentAccount.balance >= amount && receiverAcc?.username !== currentAccount.username ){
     // console.log('Transfer valid')
@@ -171,8 +177,63 @@ btnTransfer.addEventListener('click', function (event) {
     //Update UI
     updateUI(currentAccount);
   }
+});
+
+
+
+//Prestar dinero
+
+btnLoan.addEventListener('click', function (event) {
+  event.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if( amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)){
+    currentAccount.movements.push(amount);
+    //Update UI
+    updateUI(currentAccount);
+  };
+
+  inputLoanAmount.value = '';
+
+});
+
+
+
+
+//Cerrrar una cuenta.
+
+btnClose.addEventListener('click', function (evento) {
+
+  evento.preventDefault();
+  
+  if(inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) === currentAccount.pin){
+    
+    //Buscaremos el index de la cuenta
+    //findindex retorno el indice y no el elemento como tal 
+    const index = accounts.findIndex( acc => acc.username === currentAccount.username)
+    
+    console.log(index);
+    // .indexOf(23) mucho mas simple
+    
+    // Delete account
+    accounts.slice(index, 1);
+    
+    //Hide UI
+    containerApp.style.opacity = 0;
+  };
+
+  inputCloseUsername.value = inputClosePin.value = '';
 })
 
+//Ordenar las cuentas 
+
+let sorted = false
+btnSort.addEventListener('click', function (evento) {
+  evento.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted
+})
 
 // console.log(containerMovements.innerHTML);
 
@@ -233,13 +294,13 @@ console.log(accounts);
 /////////////////////////////////////////////////
 // LECTURES
 
-
+/*
 
 // const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
 ///////////1)
-/*
+
 //arrys is the most used data structure, so use arrays all the time so in this secion, we will learn all about these tools(arrys methods) so how to use them, and even more importantly WHEN TO USE THEM
 
 //TODO: EL MUTAR O NO LOS VALORES ORIGINALES ES UNA CARACTERISTICA MUY DETALLADA, PERO QUE ES MUY IMPORTANTE, PUES PARA DETERMINADAS IMPLEMENTACIONES SE VA A NECESITAR O NO MUTAR LOS VALORES ORIGINALES.
@@ -286,7 +347,6 @@ console.log(letters);
 
 console.log(letters.join(' => ')) //Esto regresa un string
 */
-
 //////////////////////////////////////////////////////////
 ///////////looping arrays: FOR ECHT
 
@@ -500,4 +560,110 @@ console.log(objExtriado);
 
 
 //extraer objetos de un array con find
+
+
+
+///////////////////////////////////////////////////////////////////////SOME AND EVERY
+/*
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+console.log(movements);
+
+//EQUALITY
+console.log(movements.includes(-130));
+
+// SOME: CONDITION
+const anyDeposits = movements.some(mov  => mov > 1500);
+console.log(anyDeposits); 
+
+// EVERY: Si cada elemento de la prueba en el callback function solo entonces el metodo every regresara true
+
+console.log(movements.every(mov => mov > 0));
+console.log(account4.movements.every(mov => mov > 0));
+
+//Seaprete callback
+
+const deposit = mov => mov > 0;
+console.log(movements.some(deposit));
+console.log(movements.every(deposit));
+console.log(movements.filter(deposit));
+
 */
+
+////////////////////////////////////////////////////////////////FLAT AND FLATMAP
+/*
+//flat regresa un array 
+
+const arr = [[1,2,3], [5,4,6], 7, 8];
+console.log(arr.flat());
+
+const arrDeep = [[[1, 2], 3], [[5, 4], 6], 7, 8];
+console.log(arrDeep.flat(2)) //Este aprametro es el nivel de anidacion que quieres matar.
+
+// const accountMovemenst = accounts.map( acc => acc.movements);
+// console.log(accountMovemenst);
+
+// const allMovements = accountMovemenst.flat();
+// console.log(allMovements);
+
+// const overalBalance = allMovements.reduce((acc, balance) => {
+//   return acc + balance
+// },0);
+// console.log(overalBalance);
+
+//Beautifull chaining
+
+const overalBalance = accounts
+  .map(acc => acc.movements)
+  .flat()
+  .reduce((acc, mov)=> acc + mov, 0);
+console.log(overalBalance);
+
+const overalBalance2 = accounts
+  .flatMap(acc => acc.movements) //No posee niveles de profuncdidad
+  .reduce((acc, mov) => acc + mov, 0);
+console.log(overalBalance2);
+*/
+
+///////////////////////////////////////////////////////////77
+//////////Sorting Array method
+
+//Strings
+//Orden alfabetico por el primer valor de la letra en el string
+const owners = ['Jonas', 'Zach', 'Adam','Martha'];
+
+console.log(owners.sort());
+console.log(owners)
+
+//Numbers
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+//El metodo a fuerza trabaja sobre strings po lo que para los numeros los toma como string y los ordena en foma ascendente 1,2,3... por su primer valor
+
+console.log(movements)
+// console.log(movements.sort());
+//Como arreglamos este comportamiento, pues asi
+
+//ASCENDING
+//return < 0 A, B (Keep order)
+//return > 0 B, A (Swtich order)
+const acendente =  movements.sort((a, b) =>{
+  //pineza en a, b como dos numeros consecurivos en el arreglo.
+  if(a > b){
+    return -1
+  }else{
+    return 1
+  }
+})
+console.log(acendente);
+
+//DESCENDING
+const desendente = movements.sort((a, b) => {
+  if( a > b ){
+    return 1
+  }else{
+    return -1
+  }
+});
+
+console.log(desendente);
