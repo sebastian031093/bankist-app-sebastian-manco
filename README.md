@@ -1,16 +1,16 @@
-## Bankist app
+# Bankist app
 
-Esta es una app que simula el comportamiento de una interfaz de usurio para:
+This is an app that simulates the behavior of a user interface in which you can check your balance, make transactions and lend money among other things. The user interface is really intuitive so the usability details are left to your curiosity :joy:
 
-# Hacer loggin de usuarios.
--Para haccer login de usuarios puedes testear con estos cuatro valores:
-user: js, pin: 1111
-user: jd, pin: 2222
-user: stw, pin: 3333
-user: ss, pin: 4444
+## Logging of users.
+-- Para haccer login de usuarios puedes testear con estos cuatro valores:
+* user: js, pin: 1111
+* user: jd, pin: 2222
+* user: stw, pin: 3333
+* user: ss, pin: 4444
 
-
-# Mirar movimientos.
-# Transferir dinero.
-# Pedir un prestamo al banco.
-# Ordenar los movimentos en diferente orden.
+## things you can do
++ Watch movements.
++ Transfer money.
++ Borrow from the bank.
++ Arrange the movements in different order.
